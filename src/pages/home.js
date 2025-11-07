@@ -98,20 +98,22 @@ export default function HomePage() {
           <h3>About ProConnect</h3>
           <p>
             ProConnect connects clients with skilled professionals across Rwanda.
-            From mechanics, tailors, and chefs to developers, IT support, and
-            more, we make finding trusted services easy and reliable.
+            From mechanics, tailors, and chefs to developers, IT support, and more,
+            we make finding trusted services easy and reliable.
           </p>
           <p>
             Our co-founder, <strong>Belyse</strong>, started ProConnect to empower
             local talent and help people access professional services conveniently.
+            Her vision is to bridge the gap between skilled workers and clients,
+            creating opportunities for growth.
           </p>
           <p>
-            By using ProConnect, you contribute to economic growth, employment,
-            and better access to services throughout Rwanda.
+            By using ProConnect, you contribute to economic growth, employment, and
+            better access to services throughout Rwanda.
           </p>
         </div>
         <div className="about-image">
-          <img src={img2} alt="ProConnect illustration" />
+          {/* Professional illustration placeholder - will show business chart emoji */}
         </div>
       </section>
 
@@ -170,99 +172,75 @@ export default function HomePage() {
         <h3>Our Services</h3>
         <div className="services-grid">
           <div className="service-box">
-            <FontAwesomeIcon icon={faCar} size="2x" />
-            <h4>Mechanics</h4>
-            <p>Certified experts for car repairs & maintenance.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faScissors} size="2x" />
-            <h4>Tailors</h4>
-            <p>Custom clothes, alterations and design.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faTools} size="2x" />
             <h4>Technicians</h4>
-            <p>Installations, repairs of electronics & appliances.</p>
+            <p>Professional technicians for installations, repairs of electronics & appliances.</p>
           </div>
           <div className="service-box">
-            <FontAwesomeIcon icon={faUtensils} size="2x" />
-            <h4>Chefs</h4>
-            <p>Professional chefs for events, catering, and home services.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faBroom} size="2x" />
-            <h4>Cleaners</h4>
-            <p>Reliable cleaning services for homes and offices.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faCalculator} size="2x" />
-            <h4>Accountants</h4>
-            <p>Financial experts to help manage books and taxes.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faCarSide} size="2x" />
-            <h4>Drivers</h4>
-            <p>Professional drivers for transport and deliveries.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faHeadset} size="2x" />
-            <h4>Customer Service</h4>
-            <p>Support staff to manage client inquiries efficiently.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faLaptopCode} size="2x" />
-            <h4>IT Support & Developers</h4>
-            <p>Technical support and development for websites, apps, and software.</p>
-          </div>
-          <div className="service-box">
-            <FontAwesomeIcon icon={faHammer} size="2x" />
             <h4>Craftsmen</h4>
-            <p>Skilled artisans for furniture, decoration, and other crafts.</p>
+            <p>Skilled artisans for furniture, decoration, and other quality crafts.</p>
+          </div>
+          <div className="service-box">
+            <h4>Tailors</h4>
+            <p>Expert tailors for custom clothes, alterations and design services.</p>
+          </div>
+          <div className="service-box">
+            <h4>Mechanics</h4>
+            <p>Certified automotive experts for car repairs & maintenance services.</p>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer id="contact" className="footer">
-        <div className="footer-grid">
-          <div className="footer-column">
-            <h4>ProConnect</h4>
-            <p>Connecting clients with verified professionals across Rwanda.</p>
-            <p>© {new Date().getFullYear()} ProConnect. All rights reserved.</p>
+      {/* TEAM */}
+      <section id="team" className="team">
+        <h3>Meet Our Team</h3>
+        <div className="team-grid">
+          <div className="team-member">
+            <div className="team-photo"></div>
+            <h4>John Musemakweli</h4>
+            <div className="role">CEO & Founder</div>
+            <div className="contact">john@proconnect.rw</div>
           </div>
-          <div className="footer-column">
-            <h4>Contact</h4>
-            <p>
-              <FontAwesomeIcon icon={faEnvelope} /> Email: info@proconnect.rw
-            </p>
-            <p>
-              <FontAwesomeIcon icon={faPhone} /> Phone: +250 788 123 456
-            </p>
+          <div className="team-member">
+            <div className="team-photo"></div>
+            <h4>Belyse Uwimana</h4>
+            <div className="role">Co-Founder & Operations</div>
+            <div className="contact">belyse@proconnect.rw</div>
           </div>
-          <div className="footer-column">
-            <h4>Location</h4>
-            <p>
-              <FontAwesomeIcon icon={faMapMarkerAlt} /> Kigali, Rwanda
-            </p>
-            <p>Next to XYZ landmark, Gasabo District</p>
+          <div className="team-member">
+            <div className="team-photo"></div>
+            <h4>David Niyonshuti</h4>
+            <div className="role">Technical Director</div>
+            <div className="contact">david@proconnect.rw</div>
           </div>
-          <div className="footer-column">
-            <h4>Follow Us</h4>
-            <p>
-              <FontAwesomeIcon icon={faFacebook} /> Facebook
-            </p>
-            <p>
-              <FontAwesomeIcon icon={faTwitter} /> Twitter
-            </p>
-            <p>
-              <FontAwesomeIcon icon={faInstagram} /> Instagram
-            </p>
-            <p>
-              <FontAwesomeIcon icon={faLinkedin} /> LinkedIn
-            </p>
+          <div className="team-member">
+            <div className="team-photo"></div>
+            <h4>Grace Mukamana</h4>
+            <div className="role">Marketing Manager</div>
+            <div className="contact">grace@proconnect.rw</div>
           </div>
         </div>
-      </footer>
+      </section>
+
+    <footer id="contact" className="footer">
+  <div className="footer-grid">
+    <div className="footer-column">
+      <h4>ProConnect</h4>
+      <p>Connecting clients with verified professionals across Rwanda.</p>
+      <p>© {new Date().getFullYear()} ProConnect. All rights reserved.</p>
+    </div>
+    <div className="footer-column">
+      <h4>Contact</h4>
+      <p>Email: info@proconnect.rw</p>
+      <p>Phone: +250 788 123 456</p>
+    </div>
+    <div className="footer-column">
+      <h4>Location</h4>
+      <p>Kigali, Rwanda</p>
+      <p>Next to XYZ landmark, Gasabo District</p>
+    </div>
+   
+  </div>
+</footer>
     </div>
   );
 }
