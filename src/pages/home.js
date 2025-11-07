@@ -1,17 +1,64 @@
 import React from "react";
 import "../styles/home.css";
+import img2 from "../assets/img2.jpg";
+import { useNavigate } from "react-router-dom";
+
+// Font Awesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faInfoCircle,
+  faCogs,
+  faHandsHelping,
+  faEnvelope,
+  faCar,
+  faScissors,
+  faTools,
+  faUtensils,
+  faBroom,
+  faCalculator,
+  faCarSide,
+  faHeadset,
+  faLaptopCode,
+  faHammer,
+  faUserTie,
+  faPhone,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
+
+import {
+  faFacebook,
+  faTwitter,
+  faInstagram,
+  faLinkedin,
+} from "@fortawesome/free-brands-svg-icons";
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
   return (
     <div className="homepage">
       {/* HEADER */}
       <header className="header">
-        <h1 className="logo">ProConnect</h1>
+        <h1 className="logo">
+          <FontAwesomeIcon icon={faHome} /> ProConnect
+        </h1>
         <nav className="nav">
-          <a href="#about">About</a>
-          <a href="#services">Services</a>
-          <a href="#how">How it Works</a>
-          <a href="#contact">Contact</a>
+          <a href="#about">
+            <FontAwesomeIcon icon={faInfoCircle} /> About
+          </a>
+          <a href="#services">
+            <FontAwesomeIcon icon={faCogs} /> Services
+          </a>
+          <a href="#how">
+            <FontAwesomeIcon icon={faHandsHelping} /> How it Works
+          </a>
+          <a href="#team">
+            <FontAwesomeIcon icon={faUserTie} /> Our Team
+          </a>
+          <a href="#contact">
+            <FontAwesomeIcon icon={faEnvelope} /> Contact
+          </a>
         </nav>
       </header>
 
@@ -23,7 +70,9 @@ export default function HomePage() {
             Whether you need a mechanic, tailor, technician or more — we connect
             you with qualified help in Rwanda.
           </p>
-          <button className="cta">Get Started</button>
+          <button className="cta" onClick={() => navigate("/login")}>
+            Get Started
+          </button>
         </div>
       </section>
 
@@ -83,6 +132,37 @@ export default function HomePage() {
           <div className="step">
             <h4>3. Hire & Review</h4>
             <p>Choose, hire and rate the service.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* OUR TEAM */}
+      <section id="team" className="team">
+        <h3>Our Team</h3>
+        <div className="team-grid">
+          <div className="team-member">
+            <img src="/images/belyse.jpg" alt="Belyse Arlande" className="team-photo"/>
+            <h4>Belyse Arlande</h4>
+            <p>Co-Founder & CEO</p>
+            <p>Leads company strategy and growth, ensuring high-quality service for clients.</p>
+          </div>
+          <div className="team-member">
+            <img src="/images/john.jpg" alt="John Doe" className="team-photo"/>
+            <h4>John Doe</h4>
+            <p>HR Manager</p>
+            <p>Manages recruitment, employee relations, and team well-being.</p>
+          </div>
+          <div className="team-member">
+            <img src="/images/jane.jpg" alt="Jane Smith" className="team-photo"/>
+            <h4>Jane Smith</h4>
+            <p>Operations Head</p>
+            <p>Coordinates daily operations and ensures smooth delivery of services.</p>
+          </div>
+          <div className="team-member">
+            <img src="/images/michael.jpg" alt="Michael" className="team-photo"/>
+            <h4>Michael</h4>
+            <p>IT Lead</p>
+            <p>Oversees technical systems, website, and software development projects.</p>
           </div>
         </div>
       </section>
