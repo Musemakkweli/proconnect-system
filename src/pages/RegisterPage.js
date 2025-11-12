@@ -7,18 +7,11 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
+    fullname: "",
     phone: "",
     email: "",
     password: "",
-    country: "",
-    city: "",
-    district: "",
-    sector: "",
-    cell: "",
-    village: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e) => {
@@ -28,15 +21,49 @@ export default function RegisterPage() {
   const nextStep = () => setStep(2);
   const prevStep = () => setStep(1);
 
-  const handleSubmit = (e) => {
+  // ✅ REGISTER — send to FastAPI backend
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registration Data:", formData);
-    // Send data to backend
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const payload = {
+      fullname: formData.fullname,
+      phone: formData.phone,
+      email: formData.email,
+      password: formData.password,
+      role: "customer",
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.detail || "Registration failed");
+        return;
+      }
+
+      alert("Registered successfully!");
+      navigate("/login");
+
+    } catch (err) {
+      console.error(err);
+      alert("Network Error");
+    }
   };
 
   return (
     <div className="login-page">
-      {/* LEFT IMAGE SIDE */}
+      {/* LEFT IMAGE */}
       <div className="login-left">
         <div className="login-overlay">
           <h1>Welcome!</h1>
@@ -44,54 +71,28 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* RIGHT FORM SIDE */}
+      {/* RIGHT FORM */}
       <div className="login-right">
         <div className="login-form-box">
-          {/* STEP INDICATOR */}
+          {/* Step indicator */}
           <div className="step-indicator">
             <span className={step === 1 ? "dot active" : "dot"}></span>
             <span className={step === 2 ? "dot active" : "dot"}></span>
           </div>
 
           <h2>Create Account</h2>
-          <p className="subtitle">
-            {step === 1 ? "Step 1 — Personal Information" : "Step 2 — Location Information"}
-          </p>
 
           <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()}>
             {/* STEP 1 */}
             {step === 1 && (
               <>
                 <div className="form-group">
-                  <label>First Name</label>
+                  <label>Full Name</label>
                   <input
                     type="text"
-                    name="firstName"
-                    placeholder="Enter first name"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Middle Name</label>
-                  <input
-                    type="text"
-                    name="middleName"
-                    placeholder="Enter middle name"
-                    value={formData.middleName}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Enter last name"
-                    value={formData.lastName}
+                    name="fullname"
+                    placeholder="Enter your full name"
+                    value={formData.fullname}
                     onChange={handleChange}
                     required
                   />
@@ -121,18 +122,6 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
                 <div className="form-buttons">
                   <button type="button" className="step-btn next" onClick={nextStep}>
                     Next
@@ -145,71 +134,26 @@ export default function RegisterPage() {
             {step === 2 && (
               <>
                 <div className="form-group">
-                  <label>Country</label>
+                  <label>Password</label>
                   <input
-                    type="text"
-                    name="country"
-                    placeholder="Enter country"
-                    value={formData.country}
+                    type="password"
+                    name="password"
+                    placeholder="Enter password"
+                    value={formData.password}
                     onChange={handleChange}
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>City / Town</label>
+                  <label>Confirm Password</label>
                   <input
-                    type="text"
-                    name="city"
-                    placeholder="Enter city"
-                    value={formData.city}
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm password"
+                    value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>District</label>
-                  <input
-                    type="text"
-                    name="district"
-                    placeholder="Enter district"
-                    value={formData.district}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Sector</label>
-                  <input
-                    type="text"
-                    name="sector"
-                    placeholder="Enter sector"
-                    value={formData.sector}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Cell</label>
-                  <input
-                    type="text"
-                    name="cell"
-                    placeholder="Enter cell"
-                    value={formData.cell}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Village</label>
-                  <input
-                    type="text"
-                    name="village"
-                    placeholder="Enter village"
-                    value={formData.village}
-                    onChange={handleChange}
                   />
                 </div>
 
@@ -226,7 +170,7 @@ export default function RegisterPage() {
           </form>
 
           <p className="auth-footer">
-            Already have an account?
+            Already have an account?{" "}
             <span className="auth-link" onClick={() => navigate("/login")}>
               Login
             </span>

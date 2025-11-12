@@ -1,0 +1,151 @@
+.employee-container {
+  display: flex;
+  height: 100vh;
+  background: #f0f4f8;
+  font-family: sans-serif;
+  color: #1e1e1e;
+}
+
+.sidebar {
+  width: 220px;
+  background: #e0f2fe;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-right: 2px solid #93c5fd;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu button {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #93c5fd;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 500;
+  color: #1e1e1e;
+  transition: 0.3s;
+}
+
+.menu button.active {
+  background: #60a5fa;
+  color: #fff;
+}
+
+.menu button:hover {
+  background: #bfdbfe;
+}
+
+.sidebar-logout {
+  margin-top: auto;
+  background: #60a5fa !important;
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.content-area {
+  flex: 1;
+  padding: 25px;
+  background: #ffffff;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #bfdbfe;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  border: 1px solid #93c5fd;
+}
+
+.stats-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  border-left: 6px solid #60a5fa;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(96, 165, 250, 0.15);
+}
+
+.table-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(96, 165, 250, 0.10);
+  border: 1px solid #bfdbfe;
+}
+
+table {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+th {
+  background: #dbeafe;
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #e0f2fe;
+}
+
+.assign-btn,
+.auth-btn {
+  background: #60a5fa;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.assign-btn:hover,
+.auth-btn:hover {
+  background: #2563eb;
+}
+
+.profile-form .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.profile-form .form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.profile-form .form-group input,
+.profile-form .form-group select,
+.profile-form .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+}
