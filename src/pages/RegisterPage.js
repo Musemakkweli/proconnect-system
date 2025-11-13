@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
+import BASE_URL from "../config";   // ✅ add this line
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function RegisterPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/register", {
+      const res = await fetch(`${BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -1,0 +1,109 @@
+.customer-container {
+  display: flex;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #f0f4f8;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.menu button {
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #60a5fa;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.menu button.active {
+  background: #60a5fa;
+  color: white;
+}
+.sidebar-logout {
+  margin-top: auto;
+  padding: 10px;
+  background: #60a5fa;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Content */
+.content-area {
+  flex: 1;
+  padding: 25px;
+  background: #fff;
+}
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.stats-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  flex: 1;
+  padding: 15px;
+  background: #e0f2fe;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+.table-section {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+.auth-btn {
+  background: #60a5fa;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+.auth-btn:hover {
+  background: #2563eb;
+}
+.profile-form .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+.profile-form .form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.profile-form .form-group input,
+.profile-form .form-group textarea,
+.profile-form .form-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
