@@ -1,165 +1,183 @@
-// Cleaned HomePage component without any icons
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "../styles/home.css";
 import { useNavigate } from "react-router-dom";
 
+// Import your hero images from assets
+import hero1 from "../assets/img2.jpg";
+import hero2 from "../assets/img3.jpg";
+import hero3 from "../assets/img4.jpg";
+
 export default function HomePage() {
   const navigate = useNavigate();
+  const heroImages = [hero1, hero2, hero3];
+  const [currentHero, setCurrentHero] = useState(0);
+  const [activeSection, setActiveSection] = useState("home");
+
+  // Rotate hero images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHero((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
+  // Memoize sections so they don't change on every render
+  const sections = useMemo(() => ({
+    home: document.getElementById("home"),
+    about: document.getElementById("about"),
+    services: document.getElementById("services"),
+    how: document.getElementById("how"),
+    stats: document.getElementById("stats"),
+    contact: document.getElementById("contact")
+  }), []);
+
+  // Highlight active nav link based on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 120; // adjust for header height
+      for (const [key, section] of Object.entries(sections)) {
+        if (section && scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+          setActiveSection(key);
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [sections]);
 
   return (
-    <div className="homepage">
+    <div className="homepage" id="home">
+
       {/* HEADER */}
-      <header className="header">
-        <h1
-          className="logo"
-          style={{ cursor: "pointer" }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
+      <header className="header professional-header">
+        <h1 className="logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           ComplaintPortal
         </h1>
 
         <nav className="nav">
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            Home
-          </span>
-          <a href="#about">About</a>
-          <a href="#services">Complaint Types</a>
-          <a href="#how">How it Works</a>
-          <a href="#team">Our Team</a>
-          <a href="#contact">Contact</a>
+          {["home", "about", "services", "how", "stats", "contact"].map((sec) => (
+            <span
+              key={sec}
+              className={activeSection === sec ? "active" : ""}
+              onClick={() => sections[sec]?.scrollIntoView({ behavior: "smooth" })}
+            >
+              {sec.charAt(0).toUpperCase() + sec.slice(1)}
+            </span>
+          ))}
         </nav>
       </header>
+{/* HERO */}
+<section className="hero professional-hero">
+  {/* Image container */}
+  <div className="hero-images-container">
+    <img
+      src={heroImages[currentHero]}
+      alt="Hero"
+      className="hero-image"
+    />
+  </div>
 
-      {/* HERO */}
-      <section className="hero">
-        <div className="hero-content">
-          <h2>Submit Your Complaints — Quick & Easy</h2>
-          <p>
-            A platform that allows customers to submit, track and resolve complaints
-            easily while ensuring faster responses.
-          </p>
-          <button className="cta" onClick={() => navigate("/login")}>
-            Submit Complaint
-          </button>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="stats">
-        <div className="stat-box">
-          <h3>5,000+</h3>
-          <p>Complaints Resolved</p>
-        </div>
-        <div className="stat-box">
-          <h3>1,200+</h3>
-          <p>Active Users</p>
-        </div>
-        <div className="stat-box">
-          <h3>98%</h3>
-          <p>Satisfaction Rate</p>
-        </div>
-      </section>
+  {/* Text content below the image */}
+  <div className="hero-content">
+    <h2>Enhancing Customer Service Through Fast & Transparent Complaints Handling</h2>
+    <p>
+      A reliable and secure digital platform that enables organizations and customers 
+      to manage complaints efficiently, ensuring clarity, responsiveness, and trust.
+    </p>
+    <button className="cta" onClick={() => navigate("/login")}>
+      Submit a Complaint
+    </button>
+  </div>
+</section>
 
       {/* ABOUT */}
-      <section id="about" className="about split-about">
-        <div className="about-text">
-          <h3>About the Portal</h3>
+      <section id="about" className="about professional-about">
+        <div className="about-content">
+          <h3>About ComplaintPortal</h3>
           <p>
-            ComplaintPortal is a system that allows users to register and submit
-            service complaints for fast resolution.
+            ComplaintPortal is a structured, organization-ready complaint management system 
+            that allows customers to report issues while enabling institutions to track, 
+            categorize, and resolve complaints efficiently.
           </p>
           <p>
-            It is designed to be adaptable for any organization, providing a
-            reliable, transparent customer-care solution.
+            With its simplified interface and centralized tracking, the platform boosts 
+            response efficiency, strengthens accountability, and ensures a better customer experience.
           </p>
-        </div>
-        <div className="about-image"></div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section id="how" className="how-it-works">
-        <h3>How It Works</h3>
-
-        <div className="steps">
-          <div className="step">
-            <h4>1. Create an Account</h4>
-            <p>Register using your basic information.</p>
-          </div>
-
-          <div className="step">
-            <h4>2. Submit Complaint</h4>
-            <p>Describe your complaint clearly and submit.</p>
-          </div>
-
-          <div className="step">
-            <h4>3. Track Progress</h4>
-            <p>Monitor status updates until resolution.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* TEAM */}
-      <section id="team" className="team">
-        <h3>Our Team</h3>
-        <div className="team-grid">
-          <div className="team-member">
-            <img src="/images/person1.jpg" alt="Team Member" className="team-photo" />
-            <h4>Alex Carter</h4>
-            <p>Founder</p>
-            <p>Oversees platform development and strategy.</p>
-          </div>
-
-          <div className="team-member">
-            <img src="/images/person2.jpg" alt="Team Member" className="team-photo" />
-            <h4>Morgan Lee</h4>
-            <p>Support Lead</p>
-            <p>Ensures customer complaints are resolved efficiently.</p>
-          </div>
-
-          <div className="team-member">
-            <img src="/images/person3.jpg" alt="Team Member" className="team-photo" />
-            <h4>Chris Taylor</h4>
-            <p>Technical Lead</p>
-            <p>Responsible for system performance.</p>
-          </div>
         </div>
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="services">
-        <h3>Complaint Categories</h3>
+      <section id="services" className="services professional-services">
+        <h3>Key Complaint Categories</h3>
         <div className="services-grid">
           <div className="service-box">
-            <h4>Service Quality</h4>
-            <p>Concerns about the quality of received services.</p>
+            <h4>Service Delivery</h4>
+            <p>Issues related to delays, quality of service, or unmet expectations.</p>
           </div>
 
           <div className="service-box">
-            <h4>Billing Issues</h4>
-            <p>Incorrect billing, delayed invoices, and related issues.</p>
+            <h4>Billing & Payments</h4>
+            <p>Concerns about incorrect charges, unclear billing, or refund requests.</p>
           </div>
 
           <div className="service-box">
-            <h4>Technical Problems</h4>
-            <p>System failures, technical errors, and interruptions.</p>
+            <h4>Technical Issues</h4>
+            <p>System failures, outages, or interruptions in service.</p>
           </div>
 
           <div className="service-box">
-            <h4>Customer Service</h4>
-            <p>Poor handling, lack of feedback or delays.</p>
+            <h4>Customer Support</h4>
+            <p>Unresolved queries, poor communication, or slow responses.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS */}
+      <section id="how" className="how-it-works professional-process">
+        <h3>How The System Works</h3>
+        <div className="steps">
+          <div className="step">
+            <h4>1. Register</h4>
+            <p>Create an account to access complaint services.</p>
+          </div>
+
+          <div className="step">
+            <h4>2. Submit</h4>
+            <p>Fill in your complaint details clearly and submit.</p>
+          </div>
+
+          <div className="step">
+            <h4>3. Track Progress</h4>
+            <p>Follow real-time updates until your complaint is resolved.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section id="stats" className="stats professional-stats">
+        <div className="stats-grid">
+          <div className="stat-box">
+            <h3>5,000+</h3>
+            <p>Complaints Resolved</p>
+          </div>
+          <div className="stat-box">
+            <h3>1,200+</h3>
+            <p>Active Users</p>
+          </div>
+          <div className="stat-box">
+            <h3>98%</h3>
+            <p>Satisfaction Rate</p>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer id="contact" className="footer">
+      <footer id="contact" className="footer professional-footer">
         <div className="footer-grid">
           <div className="footer-column">
             <h4>ComplaintPortal</h4>
-            <p>A neutral platform for managing customer complaints.</p>
+            <p>A centralized solution for efficient complaint handling.</p>
             <p>© {new Date().getFullYear()} ComplaintPortal. All rights reserved.</p>
           </div>
 
@@ -171,11 +189,12 @@ export default function HomePage() {
 
           <div className="footer-column">
             <h4>Location</h4>
-            <p>Kigali, RWANDA</p>
-            <p>Main Office</p>
+            <p>Kigali, Rwanda</p>
+            <p>Head Office</p>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
