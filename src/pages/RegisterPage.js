@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../config";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faPhone, faEnvelope, faLock, faEye, faEyeSlash, faInfoCircle, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -21,20 +23,33 @@ export default function RegisterPage() {
   const nextStep = () => setStep(2);
   const prevStep = () => setStep(1);
 
-  // ✅ REGISTER — send to FastAPI backend
+  // ✅ REGISTER — send to FastAPI backend with validation and loading state
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+    // client-side validation
+    const nextErrors = [];
+    const phoneDigits = (formData.phone || "").replace(/\D/g, "");
+    if (!formData.fullname || formData.fullname.trim().length < 2) nextErrors.push("Full name is required");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) nextErrors.push("Enter a valid email address");
+    if (phoneDigits.length !== 10) nextErrors.push("Phone must contain exactly 10 digits");
+    if (!formData.password || formData.password.length < 6) nextErrors.push("Password must be at least 6 characters");
+    if (formData.password !== formData.confirmPassword) nextErrors.push("Passwords do not match");
+
+    if (nextErrors.length) {
+      setErrors(nextErrors);
       return;
     }
+
+    setErrors([]);
+    setIsLoading(true);
 
     const payload = {
       fullname: formData.fullname,
       phone: formData.phone,
       email: formData.email,
       password: formData.password,
+      employee_id: "",
       role: "customer",
     };
 
@@ -48,84 +63,156 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.detail || "Registration failed");
+        setErrors([data.detail || data.message || "Registration failed"]);
         return;
       }
 
-      alert("Registered successfully!");
+      alert(data.message || "Registered successfully!");
       navigate("/");
 
     } catch (err) {
       console.error(err);
-      alert("Network Error");
+      setErrors(["Network error"]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Theme and UI helpers (match login look)
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("theme") || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    } catch (e) {
+      return "light";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const root = document.documentElement;
+      if (theme === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
+      localStorage.setItem("theme", theme);
+    } catch (e) {
+      // ignore
+    }
+  }, [theme]);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [infoVisible, setInfoVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState([]);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="w-full max-w-6xl mx-4 md:mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* LEFT: branding */}
-        <div className="hidden md:flex flex-col items-start justify-center p-10 rounded-lg text-white bg-gradient-to-br from-blue-600 to-cyan-400">
-          <h1 className="text-4xl font-extrabold">Welcome!</h1>
-          <p className="mt-3 text-lg">Create your Customer Complaint account</p>
-        </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-slate-700 transition-all duration-300">
+          {/* Theme toggle */}
+          <button
+            type="button"
+            onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+            className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-sm shadow hover:shadow-md transition-colors flex items-center justify-center"
+            aria-label="Toggle dark mode"
+          >
+            {theme === 'dark' ? <FontAwesomeIcon icon={faSun} /> : <FontAwesomeIcon icon={faMoon} />}
+          </button>
 
-        {/* RIGHT: register form */}
-        <div className="flex items-center justify-center p-6">
-          <div className="w-full max-w-md bg-white rounded-xl p-6 shadow">
-            {/* Step indicator */}
-            <div className="flex justify-center mb-6">
-              <div className={`w-3 h-3 rounded-full mr-2 ${step === 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-              <div className={`w-3 h-3 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-            </div>
+          {/* Info icon */}
+          <div
+            className="absolute top-4 left-4"
+            onMouseEnter={() => setInfoVisible(true)}
+            onMouseLeave={() => setInfoVisible(false)}
+          >
+            <button type="button" aria-label="About" className="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow hover:shadow-md transition-colors">
+              <FontAwesomeIcon icon={faInfoCircle} />
+            </button>
+            {infoVisible && (
+              <div className="absolute left-0 mt-12 w-72 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-lg p-3 shadow-lg z-50">
+                <strong className="block mb-1">How the complaints system works</strong>
+                <div className="leading-tight">
+                  Customers submit complaints here. Each complaint becomes a support request the company can update. Track live progress in your dashboard until resolution.
+                </div>
+              </div>
+            )}
+          </div>
 
-            <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
+          {/* Brand */}
+          <div className="flex justify-center mb-6">
+           
+          </div>
 
-            <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()}>
+          <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
+
+          <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
+            {errors && errors.length > 0 && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-3">
+                <ul className="list-disc list-inside space-y-1">
+                  {errors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {/* STEP 1 */}
             {step === 1 && (
               <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    name="fullname"
-                    placeholder="Enter your full name"
-                    value={formData.fullname}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Name</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faUser} className="text-slate-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="fullname"
+                      placeholder="Full name"
+                      value={formData.fullname}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    placeholder="Enter phone number"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Phone</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faPhone} className="text-slate-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="phone"
+                      placeholder="Phone number"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Email</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faEnvelope} className="text-slate-400" />
+                    </div>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email address"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
-                  <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md" onClick={nextStep}>
+                  <button type="button" onClick={nextStep} disabled={isLoading} className="py-3 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                     Next
                   </button>
                 </div>
@@ -135,53 +222,73 @@ export default function RegisterPage() {
             {/* STEP 2 */}
             {step === 2 && (
               <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Password</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faLock} className="text-slate-400" />
+                    </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      placeholder="Password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-12 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                    <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-3 flex items-center text-slate-500 p-2">
+                      {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Confirm Password</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faLock} className="text-slate-400" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      name="confirmPassword"
+                      placeholder="Confirm password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-11 pr-12 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                    <button type="button" onClick={() => setShowConfirmPassword(s => !s)} className="absolute inset-y-0 right-3 flex items-center text-slate-500 p-2">
+                      {showConfirmPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-md" onClick={prevStep}>
+                <div className="flex items-center justify-between">
+                  <button type="button" onClick={prevStep} disabled={isLoading} className="py-3 px-6 bg-gray-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
                     Back
                   </button>
-                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md">
-                    Register
+                  <button type="submit" disabled={isLoading} className="py-3 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Registering...
+                      </span>
+                    ) : (
+                      'Register'
+                    )}
                   </button>
                 </div>
               </>
             )}
-          </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <button onClick={() => navigate("/")} className="text-blue-600 font-medium hover:underline">
-              Login
-            </button>
-          </p>
+            <div className="text-center mt-3 text-sm text-slate-600 dark:text-slate-300">
+              Already have an account?
+              <button type="button" onClick={() => navigate('/')} className="ml-2 text-blue-600 hover:underline font-medium">Login</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
