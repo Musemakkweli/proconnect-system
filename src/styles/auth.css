@@ -9,7 +9,8 @@
 /* LEFT SIDE - IMAGE */
 .login-left {
   flex: 1;
-  background: url('../assets/img4.jpeg') center/cover no-repeat;
+  /* removed background image to keep login page image-free */
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
   position: relative;
   min-height: 100vh;
 }

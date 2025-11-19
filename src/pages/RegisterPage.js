@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/auth.css";
-import BASE_URL from "../config";   // ✅ add this line
+import BASE_URL from "../config";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -54,7 +53,7 @@ export default function RegisterPage() {
       }
 
       alert("Registered successfully!");
-      navigate("/login");
+      navigate("/");
 
     } catch (err) {
       console.error(err);
@@ -63,32 +62,31 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="login-page">
-      {/* LEFT IMAGE */}
-      <div className="login-left">
-        <div className="login-overlay">
-          <h1>Welcome!</h1>
-          <p>Create your Customer Complaint account</p>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="w-full max-w-6xl mx-4 md:mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* LEFT: branding */}
+        <div className="hidden md:flex flex-col items-start justify-center p-10 rounded-lg text-white bg-gradient-to-br from-blue-600 to-cyan-400">
+          <h1 className="text-4xl font-extrabold">Welcome!</h1>
+          <p className="mt-3 text-lg">Create your Customer Complaint account</p>
         </div>
-      </div>
 
-      {/* RIGHT FORM */}
-      <div className="login-right">
-        <div className="login-form-box">
-          {/* Step indicator */}
-          <div className="step-indicator">
-            <span className={step === 1 ? "dot active" : "dot"}></span>
-            <span className={step === 2 ? "dot active" : "dot"}></span>
-          </div>
+        {/* RIGHT: register form */}
+        <div className="flex items-center justify-center p-6">
+          <div className="w-full max-w-md bg-white rounded-xl p-6 shadow">
+            {/* Step indicator */}
+            <div className="flex justify-center mb-6">
+              <div className={`w-3 h-3 rounded-full mr-2 ${step === 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+              <div className={`w-3 h-3 rounded-full ${step === 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+            </div>
 
-          <h2>Create Account</h2>
+            <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
 
-          <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()}>
+            <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()}>
             {/* STEP 1 */}
             {step === 1 && (
               <>
-                <div className="form-group">
-                  <label>Full Name</label>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                   <input
                     type="text"
                     name="fullname"
@@ -96,11 +94,12 @@ export default function RegisterPage() {
                     value={formData.fullname}
                     onChange={handleChange}
                     required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Phone Number</label>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                   <input
                     type="text"
                     name="phone"
@@ -108,11 +107,12 @@ export default function RegisterPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Email</label>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
                     name="email"
@@ -120,11 +120,12 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="form-buttons">
-                  <button type="button" className="step-btn next" onClick={nextStep}>
+                <div className="flex justify-end">
+                  <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md" onClick={nextStep}>
                     Next
                   </button>
                 </div>
@@ -134,8 +135,8 @@ export default function RegisterPage() {
             {/* STEP 2 */}
             {step === 2 && (
               <>
-                <div className="form-group">
-                  <label>Password</label>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                   <input
                     type="password"
                     name="password"
@@ -143,11 +144,12 @@ export default function RegisterPage() {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Confirm Password</label>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                   <input
                     type="password"
                     name="confirmPassword"
@@ -155,14 +157,15 @@ export default function RegisterPage() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                <div className="form-buttons">
-                  <button type="button" className="step-btn back" onClick={prevStep}>
+                <div className="flex justify-between">
+                  <button type="button" className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-md" onClick={prevStep}>
                     Back
                   </button>
-                  <button type="submit" className="step-btn next">
+                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md">
                     Register
                   </button>
                 </div>
@@ -170,14 +173,15 @@ export default function RegisterPage() {
             )}
           </form>
 
-          <p className="auth-footer">
+          <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <span className="auth-link" onClick={() => navigate("/login")}>
+            <button onClick={() => navigate("/")} className="text-blue-600 font-medium hover:underline">
               Login
-            </span>
+            </button>
           </p>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
