@@ -4,7 +4,7 @@ import BASE_URL from "../config";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faSun, faMoon, faEye, faEyeSlash, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
-export default function LoginBox({ compact, centered = true } = {}) {
+export default function LoginBox({ centered = true, toast }) {
   const navigate = useNavigate();
   const [theme, setTheme] = useState(() => {
     try {
@@ -126,7 +126,7 @@ export default function LoginBox({ compact, centered = true } = {}) {
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 value={formData.email}
                 onChange={handleChange}
                 required

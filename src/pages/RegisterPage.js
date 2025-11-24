@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../config";
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPhone, faEnvelope, faLock, faEye, faEyeSlash, faInfoCircle, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
-export default function RegisterPage() {
+export default function RegisterPage({ toast }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
@@ -38,6 +40,8 @@ export default function RegisterPage() {
 
     if (nextErrors.length) {
       setErrors(nextErrors);
+      // show first error as toast
+      toast.error(nextErrors[0]);
       return;
     }
 
@@ -63,12 +67,16 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors([data.detail || data.message || "Registration failed"]);
+        const msg = data.detail || data.message || "Registration failed";
+        setErrors([msg]);
+        toast.error(msg);
         return;
       }
 
-      alert(data.message || "Registered successfully!");
-      navigate("/");
+      const successMsg = data.message || "Registered successfully!";
+      toast.success(successMsg);
+      // navigate after a short delay so toast is visible
+      setTimeout(() => navigate('/'), 1500);
 
     } catch (err) {
       console.error(err);
