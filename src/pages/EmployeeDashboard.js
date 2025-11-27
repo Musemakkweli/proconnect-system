@@ -136,7 +136,7 @@ export default function EmployeeDashboard() {
         </div>
       </div>
 
-      <BottomNav active={activeTab} />
+      <BottomNav active="home" />
     </div>
   );
 }
