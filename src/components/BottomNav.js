@@ -1,16 +1,34 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faListAlt, faBell, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faListAlt, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 export default function BottomNav({ active = 'home' }) {
   const navigate = useNavigate();
 
-  const items = [
+  // detect whether the logged-in user is an employee (has employee_id)
+  let isEmployee = false;
+  try {
+    const u = JSON.parse(localStorage.getItem('user') || 'null');
+    if (u && (u.employee_id || u.emp_id || u.employeeId)) isEmployee = true;
+  } catch (e) { /* ignore parsing errors */ }
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const items = isEmployee ? [
+    { key: 'home', label: 'Home', icon: faHome, to: '/employee/dashboard' },
+    { key: 'complaints', label: 'Complaints', icon: faListAlt, to: '/employee/complaints' },
+    { key: 'profile', label: 'Profile', icon: faUser, to: '/employee/profile' },
+    { key: 'logout', label: 'Logout', icon: faSignOut, action: handleLogout },
+  ] : [
     { key: 'home', label: 'Home', icon: faHome, to: '/' },
     { key: 'complaints', label: 'Complaints', icon: faListAlt, to: '/customer/complaints' },
-    { key: 'notifications', label: 'Alerts', icon: faBell, to: '/customer/alerts' },
     { key: 'profile', label: 'Profile', icon: faUser, to: '/customer/profile' },
+    { key: 'logout', label: 'Logout', icon: faSignOut, action: handleLogout },
   ];
 
   return (
@@ -21,7 +39,7 @@ export default function BottomNav({ active = 'home' }) {
           return (
             <button
               key={it.key}
-              onClick={() => navigate(it.to)}
+              onClick={() => it.action ? it.action() : navigate(it.to)}
               className={`flex flex-col items-center justify-center px-3 py-1 rounded-md focus:outline-none transition-all duration-150 ${
                 isActive ? 'bg-purple-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}

@@ -27,16 +27,58 @@ export default function LoginBox({ centered = true, toast }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear field error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors(prev => ({ ...prev, [e.target.name]: '' }));
+    }
+  };
 
   const handleForgotPassword = () => {
-    alert("Please contact support to reset your password.");
+    if (toast?.info) {
+      toast.info("Please contact support to reset your password.");
+    } else {
+      alert("Please contact support to reset your password.");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setErrors([]);
+    setFieldErrors({});
+    
+    // Client-side validation
+    const newErrors = [];
+    const newFieldErrors = {};
+    
+    if (!formData.email?.trim()) {
+      newErrors.push("Email is required");
+      newFieldErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.push("Please enter a valid email address");
+      newFieldErrors.email = "Please enter a valid email address";
+    }
+    
+    if (!formData.password?.trim()) {
+      newErrors.push("Password is required");
+      newFieldErrors.password = "Password is required";
+    }
+    
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      setFieldErrors(newFieldErrors);
+      if (toast?.error) toast.error(newErrors[0]);
+      return;
+    }
+
     setIsLoading(true);
+
     try {
       const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
@@ -46,7 +88,9 @@ export default function LoginBox({ centered = true, toast }) {
 
       const data = await res.json();
       if (!res.ok) {
-        alert(data.detail || "Login failed");
+        const errorMsg = data.detail || "Login failed";
+        setErrors([errorMsg]);
+        if (toast?.error) toast.error(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -55,12 +99,16 @@ export default function LoginBox({ centered = true, toast }) {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.user.role);
 
+      if (toast?.success) toast.success("Login successful!");
+
       if (data.user.role === "admin") navigate("/admin/dashboard");
       else if (data.user.role === "employee") navigate("/employee/dashboard");
       else navigate("/customer/dashboard");
     } catch (err) {
       console.error(err);
-      alert("Network error");
+      const errorMsg = "Network error. Please check your connection.";
+      setErrors([errorMsg]);
+      if (toast?.error) toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -114,6 +162,27 @@ export default function LoginBox({ centered = true, toast }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error Display */}
+          {errors.length > 0 && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <FontAwesomeIcon icon={faInfoCircle} className="text-red-400 text-sm" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Please fix the following errors:</h3>
+                  <div className="mt-2">
+                    <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300">
+                      {errors.map((error, idx) => (
+                        <li key={idx}>{error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Email Input */}
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
@@ -121,7 +190,7 @@ export default function LoginBox({ centered = true, toast }) {
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <FontAwesomeIcon icon={faEnvelope} className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <FontAwesomeIcon icon={faEnvelope} className={`${fieldErrors.email ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} />
               </div>
               <input
                 id="email"
@@ -129,12 +198,15 @@ export default function LoginBox({ centered = true, toast }) {
                 type="text"
                 value={formData.email}
                 onChange={handleChange}
-                required
+                
                 disabled={isLoading}
                 placeholder="Email address"
-                className="w-full pl-11 pr-4 py-4 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 disabled:opacity-50"
+                className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 disabled:opacity-50`}
               />
             </div>
+            {fieldErrors.email && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>
+            )}
           </div>
 
           {/* Password Input */}
@@ -144,7 +216,7 @@ export default function LoginBox({ centered = true, toast }) {
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <FontAwesomeIcon icon={faLock} className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <FontAwesomeIcon icon={faLock} className={`${fieldErrors.password ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} />
               </div>
               <input
                 id="password"
@@ -152,10 +224,10 @@ export default function LoginBox({ centered = true, toast }) {
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
-                required
+                
                 disabled={isLoading}
                 placeholder="Password"
-                className="w-full pl-11 pr-16 py-4 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 disabled:opacity-50"
+                className={`w-full pl-11 pr-16 py-2 rounded-xl border-2 ${fieldErrors.password ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 disabled:opacity-50`}
               />
               <button
                 type="button"
@@ -170,6 +242,9 @@ export default function LoginBox({ centered = true, toast }) {
                 )}
               </button>
             </div>
+            {fieldErrors.password && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.password}</p>
+            )}
           </div>
 
           {/* Remember me and Forgot password */}

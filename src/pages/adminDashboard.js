@@ -4,36 +4,26 @@ import DonutChart from '../components/DonutChart';
 import BarChart from '../components/BarChart';
 import Card from '../components/Card';
 import AdminBottomNav from '../components/AdminBottomNav';
-import ThemeToggle from '../components/ThemeToggle';
 import BASE_URL from '../config';
 
 export default function AdminDashboard() {
-  const [complaints] = useState([
-    { id: 1, title: 'Complaint #1', customer: 'John Doe', employee: 'Jane Smith', status: 'Pending', created: '2025-11-10', private: true },
-    { id: 2, title: 'Complaint #2', customer: 'Alice Blue', employee: 'Tom Green', status: 'Resolved', created: '2025-11-08', private: false },
-    { id: 3, title: 'Complaint #3', customer: 'Bob Gray', employee: '', status: 'In Progress', created: '2025-11-12', private: false },
-    { id: 4, title: 'Complaint #4', customer: 'Mary Major', employee: 'Sam White', status: 'Pending', created: '2025-11-09', private: true },
-    { id: 5, title: 'Complaint #5', customer: 'Peter Pan', employee: '', status: 'Pending', created: '2025-11-11', private: false },
-  ]);
-
-  const total = complaints.length;
-  const pending = complaints.filter(c => (c.status || '').toString().toLowerCase().includes('pending')).length;
-  const inProgress = complaints.filter(c => (c.status || '').toString().toLowerCase().includes('in progress') || (c.status || '').toString().toLowerCase().includes('processing')).length;
-  const resolved = complaints.filter(c => (c.status || '').toString().toLowerCase().includes('resolved')).length;
-  const privateCount = complaints.filter(c => c.private).length;
-  const commonCount = complaints.filter(c => !c.private).length;
-
   const navigate = useNavigate();
-  const [activeNav, setActiveNav] = useState('home');
   const [userCounts, setUserCounts] = useState([0, 0, 0]); // customers, employees, admins
-
-  function handleLogout() {
-    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
-    navigate('/');
-  }
+  const [complaintStats, setComplaintStats] = useState({
+    total: 0,
+    pending: 0,
+    in_progress: 0,
+    resolved: 0,
+    assigned: 0,
+    common: 0,
+    private: 0,
+    recent: 0
+  });
 
   useEffect(() => {
     let mounted = true;
+    
+    // Fetch users for user counts
     (async () => {
       try {
         const res = await fetch(`${BASE_URL}/users`);
@@ -52,21 +42,56 @@ export default function AdminDashboard() {
         console.error('Failed to load users for dashboard', err);
       }
     })();
-    return () => { mounted = false; };
+
+    // WebSocket connection for complaint stats
+    const ws = new WebSocket('wss://arlande-api.mababa.app/complaints/stats/ws');
+    
+    ws.onopen = () => {
+      console.log('WebSocket connected to complaint stats');
+      // if (mounted) setWsConnected(true);
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received complaint stats:', data);
+        if (mounted) {
+          setComplaintStats({
+            total: data.total || 0,
+            pending: data.pending || 0,
+            in_progress: data.in_progress || 0,
+            resolved: data.resolved || 0,
+            assigned: data.assigned || 0,
+            common: data.common || 0,
+            private: data.private || 0,
+            recent: data.recent || 0
+          });
+        }
+      } catch (err) {
+        console.error('Failed to parse WebSocket message:', err);
+      }
+    };
+    
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+      // if (mounted) setWsConnected(false);
+    };
+    
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      // if (mounted) setWsConnected(false);
+    };
+
+    return () => { 
+      mounted = false;
+      ws.close();
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-900 pb-28">
       <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h2>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Overview of complaints and system status</div>
-          </div>
-          <div>
-            <ThemeToggle />
-          </div>
-        </div>
+       
 
         {/* Charts row: Pie + Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -89,18 +114,24 @@ export default function AdminDashboard() {
 
           <div className="col-span-2">
             <Card height="min-h-[60vh]">
-              <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Complaints by Status</h2>
+              <h2 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">
+                Complaint Statistics
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                  (Total: {complaintStats.total})
+                </span>
+              </h2>
               <div className="h-full">
                 <BarChart
-                  labels={['Common','Private','Pending','Processing','Resolved']}
+                  labels={['Common','Private','Pending','In Progress','Resolved','Assigned']}
                   values={[
-                    commonCount,
-                    privateCount,
-                    pending,
-                    inProgress,
-                    resolved,
+                    complaintStats.common,
+                    complaintStats.private,
+                    complaintStats.pending,
+                    complaintStats.in_progress,
+                    complaintStats.resolved,
+                    complaintStats.assigned,
                   ]}
-                  colors={["#06b6d4", "#7c3aed", "#f59e0b", "#3b82f6", "#10b981"]}
+                  colors={["#06b6d4", "#7c3aed", "#f59e0b", "#3b82f6", "#10b981", "#ef4444"]}
                   height={240}
                 />
               </div>

@@ -18,8 +18,16 @@ export default function RegisterPage({ toast }) {
     confirmPassword: "",
   });
 
+  const [errors, setErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear field error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors(prev => ({ ...prev, [e.target.name]: '' }));
+    }
   };
 
   const nextStep = () => setStep(2);
@@ -29,23 +37,62 @@ export default function RegisterPage({ toast }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous errors
+    setErrors([]);
+    setFieldErrors({});
+
     // client-side validation
     const nextErrors = [];
+    const nextFieldErrors = {};
     const phoneDigits = (formData.phone || "").replace(/\D/g, "");
-    if (!formData.fullname || formData.fullname.trim().length < 2) nextErrors.push("Full name is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) nextErrors.push("Enter a valid email address");
-    if (phoneDigits.length !== 10) nextErrors.push("Phone must contain exactly 10 digits");
-    if (!formData.password || formData.password.length < 6) nextErrors.push("Password must be at least 6 characters");
-    if (formData.password !== formData.confirmPassword) nextErrors.push("Passwords do not match");
+    
+    if (!formData.fullname || formData.fullname.trim().length < 2) {
+      nextErrors.push("Full name must be at least 2 characters");
+      nextFieldErrors.fullname = "Full name must be at least 2 characters";
+    }
+    
+    if (!formData.email?.trim()) {
+      nextErrors.push("Email is required");
+      nextFieldErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      nextErrors.push("Enter a valid email address");
+      nextFieldErrors.email = "Enter a valid email address";
+    }
+    
+    if (!formData.phone?.trim()) {
+      nextErrors.push("Phone number is required");
+      nextFieldErrors.phone = "Phone number is required";
+    } else if (phoneDigits.length !== 10) {
+      nextErrors.push("Phone must contain exactly 10 digits");
+      nextFieldErrors.phone = "Phone must contain exactly 10 digits";
+    }
+    
+    if (!formData.password?.trim()) {
+      nextErrors.push("Password is required");
+      nextFieldErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      nextErrors.push("Password must be at least 6 characters");
+      nextFieldErrors.password = "Password must be at least 6 characters";
+    }
+    
+    if (!formData.confirmPassword?.trim()) {
+      nextErrors.push("Please confirm your password");
+      nextFieldErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      nextErrors.push("Passwords do not match");
+      nextFieldErrors.confirmPassword = "Passwords do not match";
+    }
 
     if (nextErrors.length) {
       setErrors(nextErrors);
+      setFieldErrors(nextFieldErrors);
       // show first error as toast
-      toast.error(nextErrors[0]);
+      if (toast?.error) toast.error(nextErrors[0]);
       return;
     }
 
     setErrors([]);
+    setFieldErrors({});
     setIsLoading(true);
 
     const payload = {
@@ -69,18 +116,20 @@ export default function RegisterPage({ toast }) {
       if (!res.ok) {
         const msg = data.detail || data.message || "Registration failed";
         setErrors([msg]);
-        toast.error(msg);
+        if (toast?.error) toast.error(msg);
         return;
       }
 
       const successMsg = data.message || "Registered successfully!";
-      toast.success(successMsg);
+      if (toast?.success) toast.success(successMsg);
       // navigate after a short delay so toast is visible
       setTimeout(() => navigate('/'), 1500);
 
     } catch (err) {
       console.error(err);
-      setErrors(["Network error"]);
+      const errorMsg = "Network error. Please check your connection.";
+      setErrors([errorMsg]);
+      if (toast?.error) toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -109,8 +158,6 @@ export default function RegisterPage({ toast }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [infoVisible, setInfoVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState([]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
@@ -154,12 +201,22 @@ export default function RegisterPage({ toast }) {
 
           <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
             {errors && errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-3">
-                <ul className="list-disc list-inside space-y-1">
-                  {errors.map((err, i) => (
-                    <li key={i}>{err}</li>
-                  ))}
-                </ul>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <FontAwesomeIcon icon={faInfoCircle} className="text-red-400 text-sm" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Please fix the following errors:</h3>
+                    <div className="mt-2">
+                      <ul className="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+                        {errors.map((err, i) => (
+                          <li key={i}>{err}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             {/* STEP 1 */}
@@ -169,7 +226,7 @@ export default function RegisterPage({ toast }) {
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Full Name</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faUser} className="text-slate-400" />
+                      <FontAwesomeIcon icon={faUser} className={`${fieldErrors.fullname ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
                     <input
                       type="text"
@@ -178,34 +235,42 @@ export default function RegisterPage({ toast }) {
                       value={formData.fullname}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                      autoComplete="name"
+                      className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.fullname ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
                   </div>
+                  {fieldErrors.fullname && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.fullname}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Phone</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faPhone} className="text-slate-400" />
+                      <FontAwesomeIcon icon={faPhone} className={`${fieldErrors.phone ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
                     <input
-                      type="text"
+                      type="tel"
                       name="phone"
                       placeholder="Phone number"
                       value={formData.phone}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                      autoComplete="tel"
+                      className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.phone ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
                   </div>
+                  {fieldErrors.phone && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.phone}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Email</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faEnvelope} className="text-slate-400" />
+                      <FontAwesomeIcon icon={faEnvelope} className={`${fieldErrors.email ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
                     <input
                       type="email"
@@ -214,9 +279,13 @@ export default function RegisterPage({ toast }) {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                      autoComplete="email"
+                      className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
                   </div>
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div className="flex justify-end">
@@ -234,7 +303,7 @@ export default function RegisterPage({ toast }) {
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Password</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faLock} className="text-slate-400" />
+                      <FontAwesomeIcon icon={faLock} className={`${fieldErrors.password ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -243,19 +312,23 @@ export default function RegisterPage({ toast }) {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-12 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                      autoComplete="new-password"
+                      className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${fieldErrors.password ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
                     <button type="button" onClick={() => setShowPassword(s => !s)} className="absolute inset-y-0 right-3 flex items-center text-slate-500 p-2">
                       {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.password}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Confirm Password</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faLock} className="text-slate-400" />
+                      <FontAwesomeIcon icon={faLock} className={`${fieldErrors.confirmPassword ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -264,12 +337,16 @@ export default function RegisterPage({ toast }) {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required
-                      className="w-full pl-11 pr-12 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200"
+                      autoComplete="new-password"
+                      className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${fieldErrors.confirmPassword ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
                     <button type="button" onClick={() => setShowConfirmPassword(s => !s)} className="absolute inset-y-0 right-3 flex items-center text-slate-500 p-2">
                       {showConfirmPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
                     </button>
                   </div>
+                  {fieldErrors.confirmPassword && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.confirmPassword}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
