@@ -57,13 +57,7 @@ export default function LoginBox({ centered = true, toast }) {
     const newErrors = [];
     const newFieldErrors = {};
     
-    if (!formData.email?.trim()) {
-      newErrors.push("Email is required");
-      newFieldErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.push("Please enter a valid email address");
-      newFieldErrors.email = "Please enter a valid email address";
-    }
+
     
     if (!formData.password?.trim()) {
       newErrors.push("Password is required");

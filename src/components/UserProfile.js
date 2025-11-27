@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faMapMarkerAlt, faCamera, faSave, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { getProvinces, getDistricts, getSectors, getCells, getVillages } from '../data/rwandaLocations';
@@ -25,27 +25,7 @@ export default function UserProfile({ toast, userType = 'user' }) {
   const [availableCells, setAvailableCells] = useState([]);
   const [availableVillages, setAvailableVillages] = useState([]);
 
-  useEffect(() => {
-    // Get user ID from localStorage
-    let currentUserId = null;
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      // Try multiple possible field names for user ID based on working patterns
-      currentUserId = user?.user_id || user?.id || user?.userId || null;
-    } catch (e) {
-      console.error('Error getting user ID:', e);
-    }
-
-    if (!currentUserId) {
-      if (toast && toast.error) toast.error('User ID not found');
-      return;
-    }
-
-    setUserId(currentUserId);
-    loadProfile(currentUserId);
-  }, [loadProfile, toast]);
-
-  const loadProfile = async (userIdToLoad) => {
+  const loadProfile = useCallback(async (userIdToLoad) => {
     setIsLoading(true);
     try {
       const res = await fetch(`https://arlande-api.mababa.app/user-profile/${userIdToLoad}`, {
@@ -112,7 +92,30 @@ export default function UserProfile({ toast, userType = 'user' }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    // Get user ID from localStorage
+    let currentUserId = null;
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      console.log('Retrieved user from localStorage:', user);
+      // Try multiple possible field names for user ID
+      currentUserId = user?.id || user?.user_id || user?.userId || null;
+      console.log('Extracted user ID:', currentUserId);
+    } catch (e) {
+      console.error('Error parsing user from localStorage:', e);
+    }
+
+    if (!currentUserId) {
+      console.warn('No user ID found in localStorage');
+      if (toast && toast.error) toast.error('User ID not found. Please login again.');
+      return;
+    }
+
+    setUserId(currentUserId);
+    loadProfile(currentUserId);
+  }, [loadProfile, toast]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
