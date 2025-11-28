@@ -10,6 +10,10 @@ export default function UserProfile({ toast, userType = 'user' }) {
   const [isSaving, setIsSaving] = useState(false);
   const [userId, setUserId] = useState(null);
   const [formData, setFormData] = useState({
+    fullname: '',
+    email: '',
+    phone: '',
+    about: '',
     province: '',
     district: '',
     sector: '',
@@ -38,25 +42,40 @@ export default function UserProfile({ toast, userType = 'user' }) {
       if (res.ok) {
         const data = await res.json();
         console.log('Profile data received:', data);
-        setProfile(data);
-        const profileData = {
-          province: data.province || '',
-          district: data.district || '',
-          sector: data.sector || '',
-          cell: data.cell || '',
-          village: data.village || ''
+        
+        // Handle nested response structure - profile data is under 'profile' key
+        const profileData = data.profile || data;
+        const userData = data.user || {};
+        
+        // Combine user and profile data
+        const combinedProfile = {
+          ...userData,
+          ...profileData
         };
-        setFormData(profileData);
+        
+        setProfile(combinedProfile);
+        const formDataUpdate = {
+          fullname: userData.fullname || combinedProfile.fullname || '',
+          email: userData.email || combinedProfile.email || '',
+          phone: userData.phone || combinedProfile.phone || '',
+          about: profileData.about || '',
+          province: profileData.province || '',
+          district: profileData.district || '',
+          sector: profileData.sector || '',
+          cell: profileData.cell || '',
+          village: profileData.village || ''
+        };
+        setFormData(formDataUpdate);
         
         // Initialize cascading dropdowns based on existing data
-        if (profileData.province) {
-          setAvailableDistricts(getDistricts(profileData.province));
-          if (profileData.district) {
-            setAvailableSectors(getSectors(profileData.province, profileData.district));
-            if (profileData.sector) {
-              setAvailableCells(getCells(profileData.province, profileData.district, profileData.sector));
-              if (profileData.cell) {
-                setAvailableVillages(getVillages(profileData.province, profileData.district, profileData.sector, profileData.cell));
+        if (formDataUpdate.province) {
+          setAvailableDistricts(getDistricts(formDataUpdate.province));
+          if (formDataUpdate.district) {
+            setAvailableSectors(getSectors(formDataUpdate.province, formDataUpdate.district));
+            if (formDataUpdate.sector) {
+              setAvailableCells(getCells(formDataUpdate.province, formDataUpdate.district, formDataUpdate.sector));
+              if (formDataUpdate.cell) {
+                setAvailableVillages(getVillages(formDataUpdate.province, formDataUpdate.district, formDataUpdate.sector, formDataUpdate.cell));
               }
             }
           }
@@ -65,12 +84,16 @@ export default function UserProfile({ toast, userType = 'user' }) {
         // Show info about what was loaded
         if (toast && toast.info) {
           const fields = [];
-          if (data.province) fields.push('province');
-          if (data.district) fields.push('district');
-          if (data.sector) fields.push('sector');
-          if (data.cell) fields.push('cell');
-          if (data.village) fields.push('village');
-          if (data.profile_image_url) fields.push('image');
+          if (userData.fullname || combinedProfile.fullname) fields.push('fullname');
+          if (userData.email || combinedProfile.email) fields.push('email');
+          if (userData.phone || combinedProfile.phone) fields.push('phone');
+          if (profileData.about) fields.push('about');
+          if (profileData.province) fields.push('province');
+          if (profileData.district) fields.push('district');
+          if (profileData.sector) fields.push('sector');
+          if (profileData.cell) fields.push('cell');
+          if (profileData.village) fields.push('village');
+          if (profileData.profile_image_url) fields.push('image');
           
           if (fields.length > 0) {
             toast.info(`Profile loaded with: ${fields.join(', ')}`);
@@ -195,7 +218,8 @@ export default function UserProfile({ toast, userType = 'user' }) {
 
     // Validate that we have some data to save
     const hasLocationData = formData.province || formData.district || formData.sector || formData.cell || formData.village;
-    if (!hasLocationData && !selectedImage) {
+    const hasBasicData = formData.fullname || formData.email || formData.phone || formData.about;
+    if (!hasLocationData && !hasBasicData && !selectedImage) {
       if (toast && toast.warning) toast.warning('Please fill in at least one field or select an image');
       return;
     }
@@ -204,6 +228,10 @@ export default function UserProfile({ toast, userType = 'user' }) {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('user_id', userId);
+      formDataToSend.append('fullname', formData.fullname || '');
+      formDataToSend.append('email', formData.email || '');
+      formDataToSend.append('phone', formData.phone || '');
+      formDataToSend.append('about', formData.about || '');
       formDataToSend.append('province', formData.province || '');
       formDataToSend.append('district', formData.district || '');
       formDataToSend.append('sector', formData.sector || '');
@@ -219,6 +247,10 @@ export default function UserProfile({ toast, userType = 'user' }) {
       // Log what we're sending for debugging
       console.log('Profile update attempt:', {
         user_id: userId,
+        fullname: formData.fullname || '',
+        email: formData.email || '',
+        phone: formData.phone || '',
+        about: formData.about || '',
         province: formData.province || '',
         district: formData.district || '',
         sector: formData.sector || '',
@@ -247,7 +279,8 @@ export default function UserProfile({ toast, userType = 'user' }) {
       console.log('API Response:', { status: res.status, data });
       
       if (res.ok) {
-        if (toast && toast.success) toast.success(data.message || 'Profile updated successfully');
+        const successMsg = data.message || 'Profile updated successfully';
+        if (toast && toast.success) toast.success(successMsg);
         setIsEditing(false);
         setSelectedImage(null);
         setImagePreview(null);
@@ -306,6 +339,10 @@ export default function UserProfile({ toast, userType = 'user' }) {
     // Reset form data to original profile data
     if (profile) {
       setFormData({
+        fullname: profile.fullname || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        about: profile.about || '',
         province: profile.province || '',
         district: profile.district || '',
         sector: profile.sector || '',
@@ -405,8 +442,98 @@ export default function UserProfile({ toast, userType = 'user' }) {
           )}
         </div>
 
-        {/* Location Information Section */}
+        {/* Basic Information Section */}
         <div className="space-y-6">
+          <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2 mb-4">
+              <FontAwesomeIcon icon={faUser} className="text-blue-600" />
+              <span>Basic Information</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Full Name
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Enter your full name"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-600">
+                    {profile?.fullname || 'Not set'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Email
+                </label>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Enter your email"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-600">
+                    {profile?.email || 'Not set'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Phone
+                </label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Enter your phone number"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-600">
+                    {profile?.phone || 'Not set'}
+                  </p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  About
+                </label>
+                {isEditing ? (
+                  <textarea
+                    name="about"
+                    value={formData.about}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-gray-100 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Tell us about yourself"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-600">
+                    {profile?.about || 'Not set'}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Location Information Section */}
           <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2 mb-4">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="text-blue-600" />

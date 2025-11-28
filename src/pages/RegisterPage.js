@@ -234,7 +234,7 @@ export default function RegisterPage({ toast }) {
                       placeholder="Full name"
                       value={formData.fullname}
                       onChange={handleChange}
-                      required
+                      
                       autoComplete="name"
                       className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.fullname ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
@@ -256,7 +256,7 @@ export default function RegisterPage({ toast }) {
                       placeholder="Phone number"
                       value={formData.phone}
                       onChange={handleChange}
-                      required
+                      
                       autoComplete="tel"
                       className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.phone ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
@@ -278,7 +278,7 @@ export default function RegisterPage({ toast }) {
                       placeholder="Email address"
                       value={formData.email}
                       onChange={handleChange}
-                      required
+                      
                       autoComplete="email"
                       className={`w-full pl-11 pr-4 py-2 rounded-xl border-2 ${fieldErrors.email ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
@@ -311,7 +311,7 @@ export default function RegisterPage({ toast }) {
                       placeholder="Password"
                       value={formData.password}
                       onChange={handleChange}
-                      required
+                      
                       autoComplete="new-password"
                       className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${fieldErrors.password ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
@@ -336,7 +336,7 @@ export default function RegisterPage({ toast }) {
                       placeholder="Confirm password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      required
+                      
                       autoComplete="new-password"
                       className={`w-full pl-11 pr-12 py-2 rounded-xl border-2 ${fieldErrors.confirmPassword ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'} text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200`}
                     />
