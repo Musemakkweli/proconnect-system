@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import BottomNav from "../components/BottomNav";
 import DonutChart from "../components/DonutChart";
 
 export default function CustomerDashboard() {
@@ -146,7 +145,6 @@ export default function CustomerDashboard() {
         </div>
       </div>
 
-      <BottomNav active={activeTab} />
     </div>
   );
 }

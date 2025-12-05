@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import AdminBottomNav from '../components/AdminBottomNav';
 import BASE_URL from '../config';
 
 const sampleComplaints = [
@@ -256,7 +255,6 @@ export default function AdminComplaints({ toast }){
           )}
         </section>
       </div>
-      <AdminBottomNav />
 
       {/* Assign modal */}
       {assignModalOpen && activeComplaint && (

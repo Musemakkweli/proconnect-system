@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import BottomNav from '../components/BottomNav';
 import BASE_URL from '../config';
 
 export default function CustomerComplaints({ toast }) {
@@ -669,7 +668,6 @@ export default function CustomerComplaints({ toast }) {
         </div>
       )}
 
-      <BottomNav active="complaints" />
       {/* Modal for new complaint */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

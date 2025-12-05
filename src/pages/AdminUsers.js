@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AdminBottomNav from '../components/AdminBottomNav';
 import BASE_URL from '../config';
 
 const sampleUsers = [
@@ -221,7 +220,6 @@ export default function AdminUsers({ toast }){
         </section>
       </div>
 
-      <AdminBottomNav />
       {editUser && (
         <AdminUsersEditModal user={editUser} onClose={()=> setEditUser(null)} onSave={saveUserUpdates} saving={saving} />
       )}

@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { ToastContext } from '../App';
 import UserProfile from '../components/UserProfile';
-import BottomNav from '../components/BottomNav';
 
 export default function EmployeeProfile() {
   const toast = useContext(ToastContext);
@@ -9,7 +8,6 @@ export default function EmployeeProfile() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-slate-900 pb-28">
       <UserProfile toast={toast} userType="employee" />
-      <BottomNav active="profile" />
     </div>
   );
 }

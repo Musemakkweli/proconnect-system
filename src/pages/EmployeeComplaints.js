@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import BottomNav from '../components/BottomNav';
 import BASE_URL from '../config';
 
 export default function EmployeeComplaints({ toast }) {
@@ -602,7 +601,6 @@ export default function EmployeeComplaints({ toast }) {
         </div>
       )}
 
-      <BottomNav active="complaints" />
     </div>
   );
 }

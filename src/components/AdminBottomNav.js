@@ -30,15 +30,20 @@ export default function AdminBottomNav(){
 
   return (
     <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40">
-      <div className="bg-white dark:bg-slate-800 shadow-lg rounded-full px-3 py-2 flex items-center space-x-2">
+      <div className="bg-white shadow-2xl rounded-full px-3 py-2 flex items-center space-x-3 border border-slate-200">
         {items.map(it => (
-          <button key={it.key} onClick={()=> navigate(it.to)} aria-label={it.label} className={`px-3 py-1 rounded-full text-sm flex items-center space-x-2 ${path.startsWith(it.to) ? 'bg-indigo-600 text-white' : 'text-gray-700 dark:text-gray-200'}`}>
+          <button
+            key={it.key}
+            onClick={()=> navigate(it.to)}
+            aria-label={it.label}
+            className={`px-3 py-1 rounded-full text-sm flex items-center space-x-2 transition-all duration-150 ${path.startsWith(it.to) ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
             {it.icon}
-            <span className="text-sm">{it.label}</span>
+            <span className="text-sm font-medium">{it.label}</span>
           </button>
         ))}
 
-        <button onClick={handleLogout} aria-label="Logout" className="px-3 py-1 rounded-full text-sm flex items-center space-x-2 bg-red-600 text-white">
+        <button onClick={handleLogout} aria-label="Logout" className="px-3 py-1 rounded-full text-sm flex items-center space-x-2 bg-red-600 text-white shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 11-4 0v-1m0-8V7a2 2 0 114 0v1" /></svg>
           <span className="text-sm">Logout</span>
         </button>

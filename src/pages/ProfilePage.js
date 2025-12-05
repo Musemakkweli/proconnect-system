@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState({
@@ -170,7 +169,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <BottomNav active="profile" />
+      {/* Bottom navigation removed — left sidebar handles navigation */}
     </div>
   );
 }

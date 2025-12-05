@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import BottomNav from '../components/BottomNav';
+// Navigation moved to global left sidebar (NavLayout)
 
 export default function Notifications() {
   const [notes, setNotes] = useState([
@@ -53,7 +53,7 @@ export default function Notifications() {
         </div>
       </div>
 
-      <BottomNav active="notifications" />
+      {/* Bottom navigation removed — left sidebar handles navigation */}
     </div>
   );
 }

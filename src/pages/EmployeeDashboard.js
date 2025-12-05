@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BottomNav from "../components/BottomNav";
+// Navigation moved to global left sidebar (NavLayout)
 import DonutChart from "../components/DonutChart";
 
 export default function EmployeeDashboard() {
@@ -136,7 +136,7 @@ export default function EmployeeDashboard() {
         </div>
       </div>
 
-      <BottomNav active="home" />
+      {/* Bottom navigation removed — left sidebar handles navigation */}
     </div>
   );
 }

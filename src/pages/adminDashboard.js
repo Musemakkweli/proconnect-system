@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import DonutChart from '../components/DonutChart';
 import BarChart from '../components/BarChart';
 import Card from '../components/Card';
-import AdminBottomNav from '../components/AdminBottomNav';
 import BASE_URL from '../config';
 
 export default function AdminDashboard() {
@@ -142,7 +141,6 @@ export default function AdminDashboard() {
         {/* complaints table removed per request - dashboard shows charts only */}
       </div>
 
-      <AdminBottomNav />
 
       
     </div>
