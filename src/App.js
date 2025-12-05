@@ -1,5 +1,6 @@
 import React, { createContext } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import RegisterPage from "./pages/RegisterPage";
 import Home from "./components/LoginBox";
@@ -24,8 +25,9 @@ function App() {
   const { toasts, removeToast, toast } = useToast();
   
   return (
-    <ToastContext.Provider value={toast}>
-      <Router>
+    <ThemeProvider>
+      <ToastContext.Provider value={toast}>
+        <Router>
         <Routes>
           <Route path="/" element={<Home toast={toast} />} />
           <Route path="/register" element={<RegisterPage toast={toast} />} />
@@ -45,7 +47,8 @@ function App() {
         </Routes>
         <ToastContainer toasts={toasts} removeToast={removeToast} />
       </Router>
-    </ToastContext.Provider>
+      </ToastContext.Provider>
+    </ThemeProvider>
   );
 }
 
